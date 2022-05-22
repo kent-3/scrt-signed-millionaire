@@ -127,7 +127,7 @@ async function initializeAndUploadContract() {
 
   const [contractHash, contractAddress] = await initializeContract(
     client,
-    "stage4_contract.wasm"
+    "contract.wasm.gz"
   );
 
   var clientInfo: [SecretNetworkClient, string, string] = [

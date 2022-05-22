@@ -1,7 +1,5 @@
 #![allow(unused)]
 
-use ed25519_compact::*;
-
 use cosmwasm_std::{
     log, debug_print, to_binary, Api, Binary, Env, Extern, HandleResponse, InitResponse, Querier,
     StdError, StdResult, Storage, HumanAddr,
@@ -47,12 +45,8 @@ pub fn handle_input_a<S: Storage, A: Api, Q: Querier>(
     signature: Binary,
     pub_key: Binary,
 ) -> StdResult<HandleResponse> {
-    //Create the ed25519 specific structs
-    let public_key = PublicKey::from_slice(pub_key.as_slice()).unwrap();
-    let signature = Signature::from_slice(signature.as_slice()).unwrap();
-
     // Exit the function if the signature verification fails
-    if !public_key.verify(message.as_slice(), &signature).is_ok() {
+    if !deps.api.ed25519_verify(message.as_slice(), signature.as_slice(), pub_key.as_slice()).unwrap_or(false) {
         return Err(StdError::generic_err("Invalid signature"))
     }
 
@@ -73,12 +67,8 @@ pub fn handle_input_b<S: Storage, A: Api, Q: Querier>(
     signature: Binary,
     pub_key: Binary,
 ) -> StdResult<HandleResponse> {
-    //Create the ed25519 specific structs
-    let public_key = PublicKey::from_slice(pub_key.as_slice()).unwrap();
-    let signature = Signature::from_slice(signature.as_slice()).unwrap();
-
     // Exit the function if the signature verification fails
-    if !public_key.verify(&message.as_slice(), &signature).is_ok() {
+    if !deps.api.ed25519_verify(message.as_slice(), signature.as_slice(), pub_key.as_slice()).unwrap_or(false) {
         return Err(StdError::generic_err("Invalid signature"))
     }
 
@@ -159,6 +149,5 @@ mod tests {
         // we can just call .unwrap() to assert this was a success
         let res = init(&mut deps, env, msg).unwrap();
         assert_eq!(0, res.messages.len());
-
     }
 }
